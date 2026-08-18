@@ -547,7 +547,6 @@
 
   <!-- Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@04f46c6/qrcode.min.js"></script>
 
   <script>
     /* Same-origin relative URLs — deploy this repo behind your own HTTPS
@@ -678,14 +677,25 @@
     function startTimer(){ timer = setInterval(checkLoginStatus, 5000); }
     function stopTimer(){ clearInterval(timer); }
 
-    function showQR(text){
-      barcode.innerHTML = ''; barcode.setAttribute('title','');
-      new QRCode(barcode, { text:text, width:180, height:180, colorDark:'#0b141a', colorLight:'#ffffff' });
-      hintEl.style.display = 'none';
-      if(!qrShown && hasAnime){
-        anime({targets:'#barcode',scale:[0,1],rotate:['-6deg','0deg'],duration:700,easing:'easeOutBack'});
-      } else { barcode.style.transform = 'scale(1)'; }
-      qrShown = true;
+    function showQR(){
+      // El QR lo genera el SERVIDOR (SVG, endpoint /qr). Solo mostramos la imagen;
+      // se refresca en cada sondeo por si WhatsApp rota el código.
+      const src = '/qr/' + encodeURIComponent(phoneNumber) + '?t=' + Date.now();
+      let img = barcode.querySelector('img');
+      if(!img){
+        img = document.createElement('img');
+        img.alt = 'WhatsApp QR';
+        img.width = 180; img.height = 180;
+        barcode.appendChild(img);
+      }
+      img.onload = function(){
+        hintEl.style.display = 'none';
+        if(!qrShown && hasAnime){
+          anime({targets:'#barcode',scale:[0,1],rotate:['-6deg','0deg'],duration:700,easing:'easeOutBack'});
+        } else { barcode.style.transform = 'scale(1)'; }
+        qrShown = true;
+      };
+      img.src = src;
     }
 
     function showSuccess(name){
@@ -702,7 +712,7 @@
       fetch('/login-status/' + phoneNumber)
         .then(r => r.json())
         .then(result => {
-          if(result.qr != undefined){ setStatus('QR code ready — scan it now', 'ok'); showQR(result.qr); }
+          if(result.qr != undefined){ setStatus('QR code ready — scan it now', 'ok'); showQR(); }
           if(result.isAuthenticated){
             setStatus('Login successful for ' + result.user + ' · ' + result.platform, 'ok');
             showSuccess(result.pushname);

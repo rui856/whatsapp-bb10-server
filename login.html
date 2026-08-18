@@ -121,7 +121,7 @@
     .screen .hint{position:absolute;text-align:center;color:var(--txt-dim);font-size:12px;padding:0 24px;line-height:1.5}
     .screen .hint .qricon{display:block;margin:0 auto 10px;color:#3a4a52}
     #barcode{display:grid;place-items:center;background:#fff;padding:9px;border-radius:8px;
-      box-shadow:0 8px 22px rgba(0,0,0,.4);transform:scale(0)}
+      box-shadow:0 8px 22px rgba(0,0,0,.4)}
     #barcode:empty{display:none}
     #barcode img,#barcode canvas{display:block;border-radius:2px}
     .success-overlay{position:absolute;inset:0;display:none;place-items:center;flex-direction:column;
@@ -688,14 +688,16 @@
         img.width = 180; img.height = 180;
         barcode.appendChild(img);
       }
-      img.onload = function(){
-        hintEl.style.display = 'none';
-        if(!qrShown && hasAnime){
-          anime({targets:'#barcode',scale:[0,1],rotate:['-6deg','0deg'],duration:700,easing:'easeOutBack'});
-        } else { barcode.style.transform = 'scale(1)'; }
-        qrShown = true;
-      };
       img.src = src;
+      // El contenedor es visible por defecto (no depende de img.onload, que en
+      // algunos navegadores no dispara con SVG). La animación es solo un extra.
+      hintEl.style.display = 'none';
+      if(!qrShown){
+        if(hasAnime){
+          anime({targets:'#barcode',scale:[0.6,1],opacity:[0,1],duration:600,easing:'easeOutBack'});
+        }
+        qrShown = true;
+      }
     }
 
     function showSuccess(name){
@@ -727,7 +729,7 @@
       country     = document.getElementById('country').value;
 
       qrShown = false;
-      barcode.innerHTML = ''; barcode.style.transform = 'scale(0)';
+      barcode.innerHTML = ''; barcode.style.transform = ''; barcode.style.opacity = '';
       hintEl.style.display = 'block';
       okOverlay.classList.remove('show');
       setStatus('Preparing request…', 'loading');

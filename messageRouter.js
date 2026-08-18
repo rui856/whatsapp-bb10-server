@@ -76,7 +76,9 @@ router.get('/qr/:phoneNumber', (req, res) => {
     const status = getStatus(phone);
     if (!status || !status.qr) return res.status(404).send('no qr');
     try {
-        const svg = qrImage.imageSync(status.qr, { type: 'svg', margin: 1 });
+        let svg = qrImage.imageSync(status.qr, { type: 'svg', margin: 1 });
+        // Fondo blanco explícito: QR negro sobre pantalla oscura.
+        svg = svg.replace(/(<svg[^>]*>)/, '$1<rect width="100%" height="100%" fill="#ffffff"/>');
         res.setHeader('Content-Type', 'image/svg+xml');
         res.setHeader('Cache-Control', 'no-store');
         return res.send(svg);

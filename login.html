@@ -711,7 +711,7 @@
     }
 
     function checkLoginStatus(){
-      fetch('/api/login-status/' + phoneNumber)
+      fetch('/login-status/' + phoneNumber)
         .then(r => r.json())
         .then(result => {
           if(result.qr != undefined){ setStatus('QR code ready — scan it now', 'ok'); showQR(); }

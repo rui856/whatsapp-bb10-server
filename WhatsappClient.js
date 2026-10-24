@@ -157,18 +157,12 @@ async function extractQuoted(message, client) {
 }
 
 function startClient(id) {
-    // Eliminar SingletonLock obsoleto si existe (evita "browser already running" tras crash)
-    const lockFile = path.join(__dirname, '.wwebjs_auth', `session-${id}`, 'SingletonLock');
-    try { fs.unlinkSync(lockFile); console.log(`[${id}] SingletonLock eliminado`); } catch (_) {}
+    if (clients[id]) {
+        console.log(`[${id}] client already exists, skipping duplicate start`);
+        return;
+    }
 
-    clients[id] = new Client({
-        authStrategy: new LocalAuth({ clientId: id }),
-        puppeteer: {
-            headless: true,
-            //executablePath: '/usr/bin/google-chrome',
-            args: ['--no-sandbox'],
-        },
-    })
+    // Eliminar SingletonLock obsoleto si existe...
 
     clients[id].initialize().catch(err => console.error(`[${id}] init error:`, err))
 

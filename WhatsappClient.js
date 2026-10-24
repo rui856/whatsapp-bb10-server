@@ -165,7 +165,7 @@ function startClient(id) {
         authStrategy: new LocalAuth({ clientId: id }),
         puppeteer: {
             headless: true,
-            executablePath: '/usr/bin/google-chrome',
+            //executablePath: '/usr/bin/google-chrome',
             args: ['--no-sandbox'],
         },
     })

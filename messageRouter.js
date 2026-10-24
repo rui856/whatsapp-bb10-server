@@ -65,7 +65,7 @@ router.get('/login', (req, res) => {
     res.sendFile('/login.html', { root: __dirname });
 });
 
-router.get("/login-status/:phoneNumber", (req, res) => {
+router.get("/api/login-status/:phoneNumber", (req, res) => {
     res.json(getStatus(req.params.phoneNumber))
 });
 
